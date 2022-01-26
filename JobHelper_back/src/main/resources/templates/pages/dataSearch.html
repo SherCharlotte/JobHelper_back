@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<link rel="stylesheet" type="text/css" href="../css/style-1.css" />
+<script src="../js/echarts.min.js"></script>
+</head>
+<style>
+	#isAdding{
+		position: absolute;
+		left:0;
+		right:0;
+		top:0;
+		bottom:0;
+		background: #403833;
+		opacity:0.55;
+		visibility: hidden;
+	}
+	
+	#itemNumber{
+		position: absolute;
+		width: 86%;
+		height: 86%;
+		top: 10%;
+		left: 7%;
+	}
+	input{
+		margin:24px;
+	}
+</style>
+<body>
+	<input id="item" type="text" name="item"><button id="findData" onclick="changePage()">寻找</button>
+	<div id="itemNumber"></div>
+	<div id="isAdding">
+	<div class="loader">
+		<div class="text">获取中...</div>
+		<div class="horizontal">
+		  <div class="circlesup">
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+		  </div>
+		  <div class="circlesdwn">
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+		  </div>
+		</div>
+		<div class="vertical">
+		  <div class="circlesup">
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+		  </div>
+		  <div class="circlesdwn">
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+				<div class="circle"></div>
+		  </div>
+		</div>
+	</div>
+	</div>
+</body>
+<script src="../js/jquery-3.3.1.min.js"></script>
+<script src="../js/main.js"></script>
+<script>
+	var itemNumber = document.getElementById("itemNumber");
+	var myChart = echarts.init(itemNumber);
+	showItemNumber();
+	function showItemNumber(){
+		request("POST","/jobHelper/getItemNumberGroupByItem","",showChart,serverError,false);
+	}
+/* 	function test(responseData){
+		var data = responseData.data;
+		var catchItemList = new Array(data.length);
+		var numberList = new Array(data.length);
+		for(var i=0;i<data.length;i++){
+			catchItemList[i] = data[i].catchItem;
+			numberList[i] = data[i].number;
+		}
+	} */
+	function showChart(responseData){
+		/*绘制图表*/
+		
+		var data = responseData.data;
+		var catchItemList = new Array(data.length);
+		var numberList = new Array(data.length);
+		for(var i=0;i<data.length;i++){
+			catchItemList[i] = data[i].catchItem;
+			numberList[i] = data[i].number;
+		}
+		
+		var option = {
+			title:{
+				text:"获取职位类别分布"
+			},
+			
+			tooltip:{},
+			legend: {
+                data:["数量"]
+            },
+			xAxis:{
+				data:catchItemList
+			},
+			yAxis:{},
+			series:[{
+				name:"数量",
+				type:"bar",
+				label: {
+				            normal: {
+				                show: true,
+				                position: 'top'
+				            }
+				        },
+				data:numberList,
+			}]
+			
+			
+		};
+		myChart.setOption(option);
+		window.addEventListener("resize", function () {
+            myChart.resize();
+        });
+	}
+
+/*点击获取后弹出等待界面*/
+	function changePage(){
+		$("#isAdding").css({'visibility':'visible'});
+ 		var t=setTimeout(addJob,1000);
+	}
+	
+	function addJob(){
+	var add = {};
+	var item = $("#item").val();
+	add.item = item; 
+	request("POST","/jobHelper/addJob",add,addResult,serverError,true); 
+	}
+	
+	function addResult(responseData){
+		$("#isAdding").css({'visibility':'hidden'});
+		showItemNumber();
+	}
+</script>
+</html>

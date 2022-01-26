@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>招聘数据挖掘可视化系统</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/public.css">
+</head>
+<style>
+	
+</style>
+
+<body>
+<div id="bg"></div>
+<div class="show">
+    <h3 class="title">招聘数据挖掘可视化系统</h3>
+    <div class="login-panel">
+        <h4 class="form-title">登录账号</h4>
+        <hr class="top-line">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" class="form-control" id="username" name="username">
+            </div>
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+
+            <div class="form-group"> 
+                <button  class="btn btn-info" id="submit" name="submit" onclick="userLogin()">登录</button>
+            </div>
+            <div class="form-group">
+            	<p id="showMessage"></p>
+            </div>
+    </div>
+
+    
+    <div class="switch row">
+    	<button class="switch-action" id="register">&lt;&nbsp;还没有账号？<span>立即注册</span></button>
+    </div>
+    
+</div>
+</body>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/main.js"></script>
+<script>
+
+
+$(document).ready(function () {
+/*  		 $("#register").click(function () {
+		   request("POST","/jobHelper/register","","",serverError,false);
+		});   */
+
+ 	    $("#register").click(function () {
+	        window.location.href = "/jobHelper/register";
+	    }); 
+}) 
+
+function userLogin(){
+	var user = {};
+	user.userName = $("#username").val();
+	user.userPassword = $("#password").val();
+	request("POST","/jobHelper/userLogin",user,changeLoaction,serverError,false);
+}
+
+function changeLoaction(responseData){
+	$("#showMessage").text(responseData.description);
+	if(responseData.code==0){
+		localStorage.setItem("userName",responseData.data.userName);
+		window.location.href = responseData.nextAction;
+	}
+}
+</script>
+</html>

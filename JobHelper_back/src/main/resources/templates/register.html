@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>招聘数据挖掘可视化系统</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <link rel="stylesheet" type="text/css" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="./css/public.css">
+</head>
+<style>
+	#checkPass{
+		height:50px;
+		background-color: gray;
+	}
+</style>
+<body>
+<div id="bg"></div>
+<div class="show">
+    <h3 class="title">招聘数据挖掘可视化系统</h3>
+    <div class="login-panel">
+        <h4 class="form-title">注册&nbsp;账号</h4>
+        <hr class="top-line">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" class="form-control" id="username" name="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" class="form-control" id="password" name="password">
+            </div>
+            
+             <div class="form-group">
+                <label for="real_name">真实姓名</label>
+                <input type="text" class="form-control" id="realname" name="realname">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            
+            <div class="form-group">
+                <label for="check">验证码</label>
+                <input type="text" class="form-control" id="check" name="check">
+            </div>
+            
+ 			<div class="form-group">
+           		<canvas id="checkPass"  class="form-control"></canvas>
+            </div>
+            
+            <div class="form-group">
+                <button  class="btn btn-info" id="submit" onclick="doRegister()">注册</button>
+            </div>
+           
+            <div class="form-group">
+            	<p id="showMessage"></p> 
+            </div>
+           
+    </div>
+
+    <div class="switch row">
+        <button class="switch-action" id="login">已经注册过账号？<span>立即登录</span></button>
+    </div>
+
+</div>
+
+</body>
+<script src="js/jquery-3.3.1.min.js"></script>
+<script src="js/main.js"></script>
+<script type="text/javascript">
+var checkStr = "";
+var checkLen = 4;
+createVerifCode(checkLen);
+
+$(document).ready(function () {
+    //账号登录
+    $("#login").click(function () {
+        window.location.href = "/jobHelper/login";
+    });
+    $("#checkPass").click(function () {
+    	checkStr = "";
+		createVerifCode(checkLen);
+    });
+})
+
+function doRegister(){
+	if( $("#check").val() == checkStr){
+		
+	
+	var username = $("#username").val();
+	var password = $("#password").val();
+	var realname = $("#realname").val();
+	var email = $("#email").val();
+	//验证环节。。。。
+	//
+	var user = {};
+	user.userName = username;
+	user.userPassword = password;
+	user.realName = realname;
+	user.email = email;
+	request("POST","/jobHelper/userRegister",user,changeLocation,serverError,false);
+	}else{
+		$("#showMessage").text("验证码错误");
+		checkStr = "";
+		createVerifCode(checkLen);
+	}
+}
+
+function changeLocation(responseData){
+	$("#showMessage").text(responseData.description);
+	if(responseData.code==0){
+		window.location.href = responseData.nextAction;
+	}
+}
+
+function createVerifCode(len){
+	var can = document.getElementById("checkPass");
+	var ctx = can.getContext("2d");
+	var dictionaryNumber = [0,1,2,3,4,5,6,7,8,9,"a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z"];
+	var canWidth = can.width;
+	var canHeight = can.height;
+	ctx.clearRect(0,0,canWidth,canHeight);
+	for(let i = 0;i < len;i++){
+		ctx.restore();
+		let tmp = Math.floor((Math.random() * dictionaryNumber.length));
+		ctx.font = "15px";
+		//ctx.fillText(tmp,canWidth/len*i,canHeight/2);
+		checkStr += dictionaryNumber[tmp];
+		ctx.font = "100px Arial";
+		ctx.fillStyle = 'rgb(' +
+		Math.round(Math.random() * 255) +
+		', ' + Math.round(Math.random() * 255) +
+		', ' + Math.round(Math.random() * 255) + ')';
+		ctx.fillText(dictionaryNumber[tmp], canWidth/4*i, 100);
+	}
+	ctx.beginPath();
+	ctx.moveTo(Math.floor(Math.random() * 20),Math.floor(Math.random() * 100));
+	ctx.lineTo(canWidth - Math.floor(Math.random() * 20),Math.floor(Math.random() * 100));
+	ctx.lineWidth = 10;
+	ctx.stroke();
+	
+	ctx.beginPath();
+	ctx.moveTo(Math.floor(Math.random() * 10),Math.floor(Math.random() * 50));
+	ctx.lineTo(canWidth - Math.floor(Math.random() * 20),Math.floor(Math.random() * 50));
+	ctx.lineWidth = 10;
+	ctx.stroke();
+}
+
+
+</script>
+
+</html>
